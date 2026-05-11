@@ -11,10 +11,11 @@ class MapWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Карта")
-        self.setFixedSize(600, 450)
+        self.setFixedSize(650, 450)
 
         self.label = QLabel()
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
         layout = QVBoxLayout()
         layout.addWidget(self.label)
         self.setLayout(layout)
@@ -23,6 +24,8 @@ class MapWindow(QWidget):
         self.latitude = 51.66078  # с.ш.
         self.longitude = 39.2003  # в.д.
 
+        self.min_zoom = 2
+        self.max_zoom = 20
         self.zoom = 12
 
         self.load_map()
@@ -45,6 +48,16 @@ class MapWindow(QWidget):
                 self.label.setText("Ошибка загрузки карты")
         except:
             self.label.setText("Ошибка соединения")
+
+    def keyPressEvent(self, event):
+        if (key := event.key()) == Qt.Key.Key_PageUp:
+            if self.zoom < self.max_zoom:
+                self.zoom += 1
+                self.load_map()
+        elif key == Qt.Key.Key_PageDown:
+            if self.zoom > self.min_zoom:
+                self.zoom -= 1
+                self.load_map()
 
 
 if __name__ == "__main__":
