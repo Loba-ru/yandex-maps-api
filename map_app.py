@@ -24,6 +24,14 @@ class MapWindow(QWidget):
         self.latitude = 51.66078  # с.ш.
         self.longitude = 39.2003  # в.д.
 
+        self.min_latitude = -70  # -90
+        self.max_latitude = 70  # 90
+
+        self.min_longitude = -180
+        self.max_longitude = 180
+
+        self.step = 0.2  # 20% сдвиг
+
         self.min_zoom = 2
         self.max_zoom = 20
         self.zoom = 12
@@ -50,13 +58,38 @@ class MapWindow(QWidget):
             self.label.setText("Ошибка соединения")
 
     def keyPressEvent(self, event):
-        if (key := event.key()) == Qt.Key.Key_PageUp:
+        key = event.key()
+        if key == Qt.Key.Key_PageUp:
             if self.zoom < self.max_zoom:
                 self.zoom += 1
                 self.load_map()
         elif key == Qt.Key.Key_PageDown:
             if self.zoom > self.min_zoom:
                 self.zoom -= 1
+                self.load_map()
+        elif key == Qt.Key.Key_Left:
+            delta_lon = (360 / (2**self.zoom)) * self.step
+            self.longitude -= delta_lon
+            if self.longitude < -180:
+                self.longitude += 360
+            self.load_map()
+        elif key == Qt.Key.Key_Right:
+            delta_lon = (360 / (2**self.zoom)) * self.step
+            self.longitude += delta_lon
+            if self.longitude > 180:
+                self.longitude -= 360
+            self.load_map()
+        elif key == Qt.Key.Key_Up:
+            delta = (180 / (2**self.zoom)) * self.step
+            new_latitude = self.latitude + delta
+            if new_latitude <= self.max_latitude:
+                self.latitude = new_latitude
+                self.load_map()
+        elif key == Qt.Key.Key_Down:
+            delta = (180 / (2**self.zoom)) * self.step
+            new_latitude = self.latitude - delta
+            if new_latitude >= self.min_latitude:
+                self.latitude = new_latitude
                 self.load_map()
 
 
