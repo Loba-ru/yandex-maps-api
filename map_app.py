@@ -1,8 +1,16 @@
 import sys
 import requests
-from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout
+from PyQt6.QtWidgets import (
+    QApplication,
+    QComboBox,
+    QWidget,
+    QLabel,
+    QVBoxLayout,
+)
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
+
+from classes import ThemeButton
 
 API_KEY = "f3a0fe3a-b07e-4840-a1da-06f18b2ddf13"
 
@@ -19,6 +27,12 @@ class MapWindow(QWidget):
         layout = QVBoxLayout()
         layout.addWidget(self.label)
         self.setLayout(layout)
+
+        self.theme_btn = ThemeButton(self.label)
+        self.theme_btn.move(580, 10)  # 650 - 70
+        self.theme_btn.clicked.connect(self.change_theme)
+
+        self.dark_theme = False
 
         # Координаты г. Воронеж:
         self.latitude = 51.66078  # с.ш.
@@ -41,10 +55,11 @@ class MapWindow(QWidget):
     def load_map(self):
         # Статическая карта Yandex Maps
         width, height = self.width(), self.height()
+        theme_param = "&theme=dark" if self.dark_theme else ""
         url = (
             f"https://static-maps.yandex.ru/v1?"
             f"ll={self.longitude},{self.latitude}&z={self.zoom}"
-            f"&size={width},{height}&apikey={API_KEY}"
+            f"&size={width},{height}&apikey={API_KEY}{theme_param}"
         )
         try:
             response = requests.get(url)
@@ -91,6 +106,10 @@ class MapWindow(QWidget):
             if new_latitude >= self.min_latitude:
                 self.latitude = new_latitude
                 self.load_map()
+
+    def change_theme(self):
+        self.dark_theme = self.theme_btn.toggle()
+        self.load_map()
 
 
 if __name__ == "__main__":
